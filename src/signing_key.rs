@@ -1,4 +1,6 @@
 use decaf377::Fr;
+
+#[cfg(feature = "rand")]
 use rand_core::{CryptoRng, RngCore};
 
 use crate::{Domain, Error, Signature, SpendAuth, VerificationKey};
@@ -100,6 +102,7 @@ impl SigningKey<SpendAuth> {
 }
 
 impl<D: Domain> SigningKey<D> {
+    #[cfg(feature = "rand")]
     /// Create a new signing key from the supplied `rng`.
     pub fn new<R: RngCore + CryptoRng>(mut rng: R) -> SigningKey<D> {
         let sk = {
@@ -121,6 +124,7 @@ impl<D: Domain> SigningKey<D> {
         SigningKey { sk, pk }
     }
 
+    #[cfg(feature = "rand")]
     /// Create a signature for domain `D` on `msg` using this `SigningKey`.
     // Similar to signature::Signer but without boxed errors.
     pub fn sign<R: RngCore + CryptoRng>(&self, mut rng: R, msg: &[u8]) -> Signature<D> {
