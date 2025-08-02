@@ -10,14 +10,17 @@
 
 use std::convert::TryFrom;
 
-use decaf377::{Element, Fr};
+#[cfg(all(feature = "rand", feature = "arkworks"))]
+use crate::domain::Sealed;
+#[cfg(all(feature = "rand", feature = "arkworks"))]
+use decaf377::Element;
+use decaf377::Fr;
+#[cfg(feature = "rand")]
 use rand_core::{CryptoRng, RngCore};
 
-use crate::{
-    domain::Sealed, Binding, Error, HStar, Signature, SpendAuth, VerificationKey,
-    VerificationKeyBytes,
-};
+use crate::{Binding, Error, HStar, Signature, SpendAuth, VerificationKey, VerificationKeyBytes};
 
+#[cfg(feature = "rand")]
 // Shim to generate a random 128bit Fr value.
 fn gen_128_bits<R: RngCore + CryptoRng>(mut rng: R) -> Fr {
     let lo = rng.next_u64() as u128;
@@ -173,6 +176,7 @@ impl Verifier {
     ///
     /// [ps]: https://zips.z.cash/protocol/protocol.pdf#reddsabatchverify
     #[allow(non_snake_case)]
+    #[cfg(all(feature = "rand", feature = "arkworks"))]
     pub fn verify<R: RngCore + CryptoRng>(self, mut rng: R) -> Result<(), Error> {
         let n = self.signatures.len();
 

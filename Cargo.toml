@@ -13,7 +13,7 @@ repository = "https://github.com/penumbra-zone/decaf377-rdsa"
 blake2b_simd = { version = "0.5", default-features = false }
 decaf377 = { version = "0.10.1", default-features = false, git = "https://github.com/informalsystems/decaf377.git" }
 digest = { version = "0.9", default-features = false }
-rand_core = { version = "0.6", optional = true, default-features = false }
+rand_core = { version = "0.6", optional = true }
 hex = { version = "0.4", default-features = false }
 # Only to satisfy Cargo
 zeroize = { version = "1.7", default-features = false }
@@ -36,21 +36,21 @@ anyhow = "1.0"
 [[bench]]
 name = "bench"
 harness = false
+required-features = ["rand", "arkworks"]
 
 [features]
-default = ["serde", "std"]
+default = ["serde", "rand", "arkworks"]
 alloc = ["ark-ff", "ark-serialize"]
+arkworks = ["std", "decaf377/arkworks"]
 std = [
-  "alloc",
   "ark-ff/std",
   "blake2b_simd/std",
-  "decaf377/arkworks",
   "digest/std",
   "hex/std",
-  "rand_core/std",
   "thiserror",
 ]
-rand = ["rand_core"]
+serde = ["std", "dep:serde"]
+rand = ["std", "rand_core", "decaf377/rand"]
 parallel = ["ark-ff/parallel", "decaf377/parallel"]
 u32_backend = ["decaf377/u32_backend"]
 

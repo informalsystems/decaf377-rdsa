@@ -1,6 +1,8 @@
 use std::convert::TryFrom;
 
 use proptest::prelude::*;
+
+#[cfg(feature = "rand")]
 use rand_core::{CryptoRng, RngCore};
 
 use decaf377_rdsa::*;
@@ -30,6 +32,7 @@ enum Tweak {
 }
 
 impl<D: Domain> SignatureCase<D> {
+    #[cfg(feature = "rand")]
     fn new<R: RngCore + CryptoRng>(mut rng: R, msg: Vec<u8>) -> Self {
         let sk = SigningKey::new(&mut rng);
         let sig = sk.sign(&mut rng, &msg);
@@ -84,6 +87,7 @@ impl<D: Domain> SignatureCase<D> {
     }
 }
 
+#[cfg(feature = "rand")]
 fn tweak_strategy() -> impl Strategy<Value = Tweak> {
     prop_oneof![
         10 => Just(Tweak::None),
@@ -92,12 +96,15 @@ fn tweak_strategy() -> impl Strategy<Value = Tweak> {
     ]
 }
 
+#[cfg(feature = "rand")]
 use rand_chacha::ChaChaRng;
+#[cfg(feature = "rand")]
 use rand_core::SeedableRng;
 
 proptest! {
 
     #[test]
+    #[cfg(feature = "rand")]
     fn tweak_signature(
         tweaks in prop::collection::vec(tweak_strategy(), (0,5)),
         rng_seed in any::<u64>(),
@@ -123,6 +130,7 @@ proptest! {
     }
 
     #[test]
+    #[cfg(feature = "rand")]
     fn randomization_commutes_with_pubkey_homomorphism(rng_seed in any::<u64>()) {
         // Use a deterministic RNG so that test failures can be reproduced.
         // Seeding with 64 bits of entropy is INSECURE and this code should
