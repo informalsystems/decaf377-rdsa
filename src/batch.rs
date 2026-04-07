@@ -10,12 +10,7 @@
 
 use std::convert::TryFrom;
 
-#[cfg(all(feature = "rand", feature = "arkworks"))]
-use crate::domain::Sealed;
-#[cfg(all(feature = "rand", feature = "arkworks"))]
-use decaf377::Element;
-use decaf377::Fr;
-#[cfg(feature = "rand")]
+use cycles_curve_bn254::{Element, Fr};
 use rand_core::{CryptoRng, RngCore};
 
 use crate::{Binding, Error, HStar, Signature, SpendAuth, VerificationKey, VerificationKeyBytes};
@@ -194,7 +189,7 @@ impl Verifier {
             };
 
             let s = Fr::from_bytes_checked(&s_bytes).map_err(|_| Error::InvalidSignature)?;
-            let R = decaf377::Encoding(r_bytes)
+            let R = cycles_curve_bn254::Encoding(r_bytes)
                 .vartime_decompress()
                 .map_err(|_| Error::InvalidSignature)?;
 
@@ -228,13 +223,13 @@ impl Verifier {
 
         use std::iter::once;
 
-        let scalars = once(&P_spendauth_coeff)
-            .chain(once(&P_binding_coeff))
-            .chain(VK_coeffs.iter())
-            .chain(R_coeffs.iter());
+        let scalars = once(P_spendauth_coeff)
+            .chain(once(P_binding_coeff))
+            .chain(VK_coeffs.into_iter())
+            .chain(R_coeffs.into_iter());
 
         let basepoints = [SpendAuth::basepoint(), Binding::basepoint()];
-        let points = basepoints.iter().chain(VKs.iter()).chain(Rs.iter());
+        let points = basepoints.into_iter().chain(VKs.into_iter()).chain(Rs.into_iter());
 
         let check = Element::vartime_multiscalar_mul(scalars, points);
 

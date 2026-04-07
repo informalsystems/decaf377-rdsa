@@ -10,8 +10,9 @@ repository = "https://github.com/penumbra-zone/decaf377-rdsa"
 
 [dependencies]
 # No Alloc, No Std
-blake2b_simd = { version = "0.5", default-features = false }
-decaf377 = { version = "0.10.1", default-features = false, git = "https://github.com/informalsystems/decaf377.git" }
+sha3 = { version = "0.10", default-features = false }
+# decaf377 = { version = "0.10.1", default-features = false, git = "https://github.com/hu55a1n1/decaf377.git" }
+cycles-curve-bn254 = { git = "https://github.com/cycles-money/cycles-curve" }
 digest = { version = "0.9", default-features = false }
 rand_core = { version = "0.6", optional = true }
 hex = { version = "0.4", default-features = false }
@@ -39,20 +40,15 @@ harness = false
 required-features = ["rand", "arkworks"]
 
 [features]
-default = ["serde", "rand", "arkworks"]
+default = ["serde", "rand"]
 alloc = ["ark-ff", "ark-serialize"]
-arkworks = ["std", "decaf377/arkworks"]
-std = [
-  "ark-ff/std",
-  "blake2b_simd/std",
-  "digest/std",
-  "hex/std",
-  "thiserror",
-]
-serde = ["std", "dep:serde"]
-rand = ["std", "rand_core", "decaf377/rand"]
-parallel = ["ark-ff/parallel", "decaf377/parallel"]
-u32_backend = ["decaf377/u32_backend"]
+std = ["alloc", "ark-ff/std", "sha3/std", "digest/std", "hex/std", "rand_core/std", "thiserror"] # "decaf377/arkworks"
+# serde implies std so Error implements std::error::Error (needed for ? with anyhow in consumers)
+serde = ["dep:serde", "std"]
+parallel = ["ark-ff/parallel"] # "decaf377/parallel"
+# TODO: rand_core is currently unconditional; make it optional behind this feature
+rand = []
+# u32_backend = ["decaf377/u32_backend"]
 
 # Create profile for running checks in CI that are mostly "release" mode,
 # but also checking the `debug_assert `lines.

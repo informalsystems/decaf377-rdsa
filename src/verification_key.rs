@@ -4,7 +4,7 @@ use core::{
     marker::PhantomData,
 };
 
-use decaf377::Fr;
+use cycles_curve_bn254::Fr;
 
 use crate::{domain::Sealed, Domain, Error, Signature, SpendAuth};
 
@@ -72,7 +72,7 @@ impl<D: Domain> Ord for VerificationKeyBytes<D> {
 #[cfg_attr(feature = "serde", serde(into = "VerificationKeyBytes<D>"))]
 #[cfg_attr(feature = "serde", serde(bound = "D: Domain"))]
 pub struct VerificationKey<D: Domain> {
-    pub(crate) point: decaf377::Element,
+    pub(crate) point: cycles_curve_bn254::Element,
     pub(crate) bytes: VerificationKeyBytes<D>,
 }
 
@@ -126,7 +126,7 @@ impl<D: Domain> TryFrom<VerificationKeyBytes<D>> for VerificationKey<D> {
 
     fn try_from(bytes: VerificationKeyBytes<D>) -> Result<Self, Self::Error> {
         // Note: the identity element is allowed as a verification key.
-        let point = decaf377::Encoding(bytes.bytes)
+        let point = cycles_curve_bn254::Encoding(bytes.bytes)
             .vartime_decompress()
             .map_err(|_| Error::MalformedVerificationKey)?;
 
@@ -211,13 +211,13 @@ impl<D: Domain> VerificationKey<D> {
 
     /// Convenience method for identity checks.
     pub fn is_identity(&self) -> bool {
-        self.point == decaf377::Element::IDENTITY
+        self.point == cycles_curve_bn254::Element::identity()
     }
 
     /// Verify a purported `signature` with a prehashed challenge.
     #[allow(non_snake_case)]
     pub(crate) fn verify_prehashed(&self, signature: &Signature<D>, c: Fr) -> Result<(), Error> {
-        let R = decaf377::Encoding(signature.r_bytes())
+        let R = cycles_curve_bn254::Encoding(signature.r_bytes())
             .vartime_decompress()
             .map_err(|_| Error::InvalidSignature)?;
 
@@ -231,7 +231,7 @@ impl<D: Domain> VerificationKey<D> {
         let cA = self.point * c;
         let check = sB - cA - R;
 
-        if check == decaf377::Element::IDENTITY {
+        if check == cycles_curve_bn254::Element::identity() {
             Ok(())
         } else {
             Err(Error::InvalidSignature)

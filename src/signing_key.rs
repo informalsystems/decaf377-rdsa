@@ -1,6 +1,4 @@
-use decaf377::Fr;
-
-#[cfg(feature = "rand")]
+use cycles_curve_bn254::Fr;
 use rand_core::{CryptoRng, RngCore};
 
 use crate::{Domain, Error, Signature, SpendAuth, VerificationKey};

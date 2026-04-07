@@ -1,5 +1,8 @@
 use core::{cmp, convert::TryFrom, marker::PhantomData};
 
+#[cfg(all(feature = "serde", not(feature = "std")))]
+use alloc::{borrow::ToOwned, vec::Vec};
+
 use crate::{Domain, Error};
 
 #[cfg(not(feature = "std"))]
@@ -86,6 +89,13 @@ impl<D: Domain> cmp::PartialEq for Signature<D> {
 }
 
 impl<D: Domain> cmp::Eq for Signature<D> {}
+
+#[cfg(all(feature = "serde", not(feature = "std")))]
+impl<D: Domain> From<Signature<D>> for Vec<u8> {
+    fn from(sig: Signature<D>) -> Vec<u8> {
+        sig.as_ref().to_owned()
+    }
+}
 
 #[cfg(feature = "std")]
 mod std_only {
