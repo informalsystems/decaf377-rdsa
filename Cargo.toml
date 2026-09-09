@@ -12,7 +12,7 @@ repository = "https://github.com/penumbra-zone/decaf377-rdsa"
 # No Alloc, No Std
 sha3 = { version = "0.10", default-features = false }
 # decaf377 = { version = "0.10.1", default-features = false, git = "https://github.com/hu55a1n1/decaf377.git" }
-cycles-curve-bn254 = { git = "https://github.com/cycles-money/cycles-curve", tag = "v1.0.0-alpha.1+arc" }
+cycles-curve-bn254 = { git = "https://github.com/cycles-money/cycles-curve", branch = "zkperf/arkworks-0.6" }
 digest = { version = "0.9", default-features = false }
 rand_core = { version = "0.6", optional = true }
 hex = { version = "0.4", default-features = false }
